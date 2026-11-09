@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<language_definitions>
+  <language processor="metag" endian="little" size="32" variant="default" version="0.1"
+            slafile="metag.sla" processorspec="metag.pspec" id="metag:LE:32:default">
+    <description>Imagination META (metag), 32-bit little-endian. v0 (core subset).</description>
+    <compiler name="default" spec="metag.cspec" id="default"/>
+  </language>
+</language_definitions>

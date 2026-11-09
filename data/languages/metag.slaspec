@@ -1,0 +1,243 @@
+# Imagination META (metag) Ghidra SLEIGH v0.3 (LE,32-bit)
+define endian=little;
+define alignment=4;
+define space ram type=ram_space size=4 default;
+define space register type=register_space size=4;
+define register offset=0x000 size=4 [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8 D0_9 D0_10 D0_11 D0_12 D0_13 D0_14 D0_15 D0_16 D0_17 D0_18 D0_19 D0_20 D0_21 D0_22 D0_23 D0_24 D0_25 D0_26 D0_27 D0_28 D0_29 D0_30 D0_31 ];
+define register offset=0x080 size=4 [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
+define register offset=0x100 size=4 [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 A0_8 A0_9 A0_10 A0_11 A0_12 A0_13 A0_14 A0_15 A0_16 A0_17 A0_18 A0_19 A0_20 A0_21 A0_22 A0_23 A0_24 A0_25 A0_26 A0_27 A0_28 A0_29 A0_30 A0_31 ];
+define register offset=0x180 size=4 [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 A1_8 A1_9 A1_10 A1_11 A1_12 A1_13 A1_14 A1_15 A1_16 A1_17 A1_18 A1_19 A1_20 A1_21 A1_22 A1_23 A1_24 A1_25 A1_26 A1_27 A1_28 A1_29 A1_30 A1_31 ];
+define register offset=0x200 size=4 [ PC TXRPT ];
+define register offset=0x220 size=1 [ NF ZF CF VF ];
+define token instr(32)
+  op=(28,31) minor=(24,27) i25=(25,25) c26=(26,26) u24=(24,24) o1zb=(2,2) se1=(1,1)
+  m24=(24,24) m26=(26,26) m27=(27,27) gimm=(25,25) ua7=(7,7) pp0=(0,0) b0=(0,0)
+  boff=(5,23) signed bcc=(1,4) misc24=(0,23) rmask=(7,13)
+  imm16=(3,18) signed
+  dno=(19,23) s1no=(14,18) s2no=(9,13)
+  dno_d1=(19,23) s1no_d1=(14,18) s2no_d1=(9,13)
+  dno_a0=(19,23) dno_a1=(19,23) s1no_a0=(14,18) s1no_a1=(14,18) s2no_a0=(9,13) s2no_a1=(9,13)
+  gu=(1,4) gdno=(19,23) gdno_d1=(19,23) gdno_a0=(19,23) gdno_a1=(19,23)
+  bu=(5,6) bno_a1=(14,18) bno_d0=(14,18) bno_d1=(14,18) bno_a0=(14,18)
+  goff=(8,13) signed gor_d0=(9,13) gor_d1=(9,13) gor_a0=(9,13) gor_a1=(9,13)
+  mdu=(5,8) mdn=(14,18) msu=(10,13) msn=(19,23)
+  mdn_d0=(14,18) mdn_d1=(14,18) mdn_a0=(14,18) mdn_a1=(14,18)
+  msn_d0=(19,23) msn_d1=(19,23) msn_a0=(19,23) msn_a1=(19,23)
+  es=(1,2) eru=(3,4) ebu=(5,6) ebno=(0,0) eoff=(7,18) signed
+  ebno_a0=(0,0) ebno_d0=(0,0) ebno_d1=(0,0) ebno_a1=(0,0)
+  erno_d0=(19,23) erno_d1=(19,23) erno_a0=(19,23) erno_a1=(19,23)
+  b9=(9,9) st=(6,7) umm16=(3,18) shamt5=(9,13)
+  ccf=(1,4) jru=(0,1) joff=(3,18) op7sub=(2,8) b1=(1,1)
+  jrno_d0=(19,23) jrno_d1=(19,23) jrno_a0=(19,23) jrno_a1=(19,23)
+;
+attach variables [ dno s1no s2no gdno mdn_d0 msn_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8 D0_9 D0_10 D0_11 D0_12 D0_13 D0_14 D0_15 D0_16 D0_17 D0_18 D0_19 D0_20 D0_21 D0_22 D0_23 D0_24 D0_25 D0_26 D0_27 D0_28 D0_29 D0_30 D0_31 ];
+attach variables [ dno_d1 s1no_d1 s2no_d1 gdno_d1 bno_d1 gor_d1 mdn_d1 msn_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
+attach variables [ dno_a0 s1no_a0 s2no_a0 gdno_a0 bno_a0 gor_a0 mdn_a0 msn_a0 ] [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 A0_8 A0_9 A0_10 A0_11 A0_12 A0_13 A0_14 A0_15 A0_16 A0_17 A0_18 A0_19 A0_20 A0_21 A0_22 A0_23 A0_24 A0_25 A0_26 A0_27 A0_28 A0_29 A0_30 A0_31 ];
+attach variables [ dno_a1 s1no_a1 s2no_a1 gdno_a1 bno_a1 gor_a1 mdn_a1 msn_a1 ] [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 A1_8 A1_9 A1_10 A1_11 A1_12 A1_13 A1_14 A1_15 A1_16 A1_17 A1_18 A1_19 A1_20 A1_21 A1_22 A1_23 A1_24 A1_25 A1_26 A1_27 A1_28 A1_29 A1_30 A1_31 ];
+attach variables [ bno_d0 gor_d0 erno_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8 D0_9 D0_10 D0_11 D0_12 D0_13 D0_14 D0_15 D0_16 D0_17 D0_18 D0_19 D0_20 D0_21 D0_22 D0_23 D0_24 D0_25 D0_26 D0_27 D0_28 D0_29 D0_30 D0_31 ];
+attach variables [ erno_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
+attach variables [ erno_a0 ] [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 A0_8 A0_9 A0_10 A0_11 A0_12 A0_13 A0_14 A0_15 A0_16 A0_17 A0_18 A0_19 A0_20 A0_21 A0_22 A0_23 A0_24 A0_25 A0_26 A0_27 A0_28 A0_29 A0_30 A0_31 ];
+attach variables [ erno_a1 ] [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 A1_8 A1_9 A1_10 A1_11 A1_12 A1_13 A1_14 A1_15 A1_16 A1_17 A1_18 A1_19 A1_20 A1_21 A1_22 A1_23 A1_24 A1_25 A1_26 A1_27 A1_28 A1_29 A1_30 A1_31 ];
+attach variables [ ebno_a0 ] [ A0StP A0FrP ];
+attach variables [ ebno_d0 ] [ D0Re0 D0Ar6 ];
+attach variables [ ebno_d1 ] [ D1Re0 D1Ar5 ];
+attach variables [ ebno_a1 ] [ A1GbP A1LbP ];
+attach variables [ jrno_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8 D0_9 D0_10 D0_11 D0_12 D0_13 D0_14 D0_15 D0_16 D0_17 D0_18 D0_19 D0_20 D0_21 D0_22 D0_23 D0_24 D0_25 D0_26 D0_27 D0_28 D0_29 D0_30 D0_31 ];
+attach variables [ jrno_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
+attach variables [ jrno_a0 ] [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 A0_8 A0_9 A0_10 A0_11 A0_12 A0_13 A0_14 A0_15 A0_16 A0_17 A0_18 A0_19 A0_20 A0_21 A0_22 A0_23 A0_24 A0_25 A0_26 A0_27 A0_28 A0_29 A0_30 A0_31 ];
+attach variables [ jrno_a1 ] [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 A1_8 A1_9 A1_10 A1_11 A1_12 A1_13 A1_14 A1_15 A1_16 A1_17 A1_18 A1_19 A1_20 A1_21 A1_22 A1_23 A1_24 A1_25 A1_26 A1_27 A1_28 A1_29 A1_30 A1_31 ];
+Ddst: dno is u24=0 & dno { export dno; }
+Ddst: dno_d1 is u24=1 & dno_d1 { export dno_d1; }
+Ds1: s1no is u24=0 & s1no { export s1no; }
+Ds1: s1no_d1 is u24=1 & s1no_d1 { export s1no_d1; }
+Ds2: s2no is u24=0 & s2no { export s2no; }
+Ds2: s2no_d1 is u24=1 & s2no_d1 { export s2no_d1; }
+Adst: dno_a0 is u24=0 & dno_a0 { export dno_a0; }
+Adst: dno_a1 is u24=1 & dno_a1 { export dno_a1; }
+As1: s1no_a0 is u24=0 & s1no_a0 { export s1no_a0; }
+As1: s1no_a1 is u24=1 & s1no_a1 { export s1no_a1; }
+As2: s2no_a0 is u24=0 & s2no_a0 { export s2no_a0; }
+As2: s2no_a1 is u24=1 & s2no_a1 { export s2no_a1; }
+Rdata: gdno is gu=1 & gdno { export gdno; }
+Rdata: gdno_d1 is gu=2 & gdno_d1 { export gdno_d1; }
+Rdata: gdno_a0 is gu=3 & gdno_a0 { export gdno_a0; }
+Rdata: gdno_a1 is gu=4 & gdno_a1 { export gdno_a1; }
+Base: bno_a1 is bu=0 & bno_a1 { export bno_a1; }
+Base: bno_d0 is bu=1 & bno_d0 { export bno_d0; }
+Base: bno_d1 is bu=2 & bno_d1 { export bno_d1; }
+Base: bno_a0 is bu=3 & bno_a0 { export bno_a0; }
+Roff: gor_a1 is bu=0 & gor_a1 { export gor_a1; }
+Roff: gor_d0 is bu=1 & gor_d0 { export gor_d0; }
+Roff: gor_d1 is bu=2 & gor_d1 { export gor_d1; }
+Roff: gor_a0 is bu=3 & gor_a0 { export gor_a0; }
+Udst: mdn_d0 is mdu=1 & mdn_d0 { export mdn_d0; }
+Udst: mdn_d1 is mdu=2 & mdn_d1 { export mdn_d1; }
+Udst: mdn_a0 is mdu=3 & mdn_a0 { export mdn_a0; }
+Udst: mdn_a1 is mdu=4 & mdn_a1 { export mdn_a1; }
+Usrc: msn_d0 is msu=1 & msn_d0 { export msn_d0; }
+Usrc: msn_d1 is msu=2 & msn_d1 { export msn_d1; }
+Usrc: msn_a0 is msu=3 & msn_a0 { export msn_a0; }
+Usrc: msn_a1 is msu=4 & msn_a1 { export msn_a1; }
+btarg: reloc is boff [ reloc = inst_start + (boff << 2); ] { export *:4 reloc; }
+# ---- control flow ----
+:B btarg is op=0xa & minor=0 & bcc=0 & b0=0 & btarg { goto btarg; }
+:BEQ btarg is op=0xa & minor=0 & bcc=1 & btarg { if (ZF) goto btarg; }
+:BNE btarg is op=0xa & minor=0 & bcc=2 & btarg { if (ZF==0) goto btarg; }
+:BCS btarg is op=0xa & minor=0 & bcc=3 & btarg { if (CF) goto btarg; }
+:BCC btarg is op=0xa & minor=0 & bcc=4 & btarg { if (CF==0) goto btarg; }
+:BMI btarg is op=0xa & minor=0 & bcc=5 & btarg { if (NF) goto btarg; }
+:BPL btarg is op=0xa & minor=0 & bcc=6 & btarg { if (NF==0) goto btarg; }
+:BVS btarg is op=0xa & minor=0 & bcc=7 & btarg { if (VF) goto btarg; }
+:BVC btarg is op=0xa & minor=0 & bcc=8 & btarg { if (VF==0) goto btarg; }
+:BHI btarg is op=0xa & minor=0 & bcc=9 & btarg { if (CF&&ZF==0) goto btarg; }
+:BLS btarg is op=0xa & minor=0 & bcc=10 & btarg { if (CF==0||ZF) goto btarg; }
+:BGE btarg is op=0xa & minor=0 & bcc=11 & btarg { if (NF==VF) goto btarg; }
+:BLT btarg is op=0xa & minor=0 & bcc=12 & btarg { if (NF!=VF) goto btarg; }
+:BGT btarg is op=0xa & minor=0 & bcc=13 & btarg { if (ZF==0&&NF==VF) goto btarg; }
+:BLE btarg is op=0xa & minor=0 & bcc=14 & btarg { if (ZF||NF!=VF) goto btarg; }
+:BR btarg is op=0xa & minor=0 & bcc=0 & b0=1 & btarg { TXRPT=TXRPT-1; if (TXRPT!=0) goto btarg; }
+:CALLR btarg is op=0xa & minor=0xb & btarg { D1RtP = inst_next; call btarg; }
+:RET is op=0xa & minor=3 & misc24=0x2008a0 { return [D1RtP]; }
+:RET is op=0xa & minor=3 & misc24=0x200aa0 { return [D1RtP]; }
+# ---- MOV cross-unit (op=0xa minor=3) ----
+:MOV Usrc is op=0xa & minor=3 & b9=0 & mdu=0 & mdn=3 & Usrc { TXRPT = Usrc; }
+:MOV Udst,Usrc is op=0xa & minor=3 & b9=0 & Udst & Usrc { Udst = Usrc; }
+# ---- GP ALU reg-reg ----
+:ADD Ddst,Ds1,Ds2 is op=0x0 & i25=0 & c26=0 & m27=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 + Ds2; }
+:SUB Ddst,Ds1,Ds2 is op=0x1 & i25=0 & c26=0 & m27=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 - Ds2; }
+:AND Ddst,Ds1,Ds2 is op=0x2 & i25=0 & c26=0 & m27=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 & Ds2; }
+:OR Ddst,Ds1,Ds2 is op=0x3 & i25=0 & c26=0 & m27=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 | Ds2; }
+:XOR Ddst,Ds1,Ds2 is op=0x4 & i25=0 & c26=0 & m27=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 ^ Ds2; }
+:MUL Ddst,Ds1,Ds2 is op=0x6 & i25=0 & c26=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 * Ds2; }
+:CMP Ds1,Ds2 is op=0x7 & i25=0 & c26=0 & Ds1 & Ds2 { local d=Ds1-Ds2; ZF=(d==0); NF=(d s< 0); CF=(Ds1 < Ds2); }
+:TST Ds1,Ds2 is op=0x2 & i25=0 & c26=1 & Ds1 & Ds2 { local d=Ds1&Ds2; ZF=(d==0); NF=(d s< 0); }
+# ---- GP ALU immediate ----
+:MOV Ddst,imm16 is op=0x0 & i25=1 & c26=0 & b0=0 & o1zb=1 & Ddst & imm16 { Ddst = imm16; }
+:ADD Ddst,Ds1,imm16 is op=0x0 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 + imm16; }
+:SUB Ddst,Ds1,imm16 is op=0x1 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 - imm16; }
+:CMP Ds1,imm16 is op=0x7 & i25=1 & c26=0 & Ds1 & imm16 { local d=Ds1-imm16; ZF=(d==0); NF=(d s< 0); }
+# ---- ADDR-unit ALU (A0/A1) ----
+:ADD Adst,As1,As2 is op=0x8 & m27=0 & i25=0 & c26=0 & Adst & As1 & As2 { Adst = As1 + As2; }
+:ADD Adst,As1,imm16 is op=0x8 & m27=0 & i25=1 & c26=0 & b0=0 & o1zb=0 & Adst & As1 & imm16 { Adst = As1 + imm16; }
+:SUB Adst,As1,As2 is op=0x8 & m27=1 & i25=0 & c26=0 & Adst & As1 & As2 { Adst = As1 - As2; }
+:SUB Adst,As1,imm16 is op=0x8 & m27=1 & i25=1 & c26=0 & o1zb=0 & Adst & As1 & imm16 { Adst = As1 - imm16; }
+:MOV Adst,imm16 is op=0x8 & m27=0 & i25=1 & c26=0 & b0=0 & o1zb=1 & Adst & imm16 { Adst = imm16; }
+# ---- GET/SET (base+imm / base+reg / base++) ----
+:GETB Rdata,[Base+goff] is op=0xc & m27=0 & m24=0 & m26=0 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*1; Rdata=zext(*[ram]:1 ea); }
+:SETB [Base+goff],Rdata is op=0xb & m27=0 & m24=0 & m26=0 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*1; *[ram]:1 ea = Rdata:1; }
+:GETB Rdata,[Base+Roff] is op=0xc & m27=0 & m24=0 & m26=0 & gimm=0 & ua7=0 & Rdata & Base & Roff { local ea=Base+Roff; Rdata=zext(*[ram]:1 ea); }
+:SETB [Base+Roff],Rdata is op=0xb & m27=0 & m24=0 & m26=0 & gimm=0 & ua7=0 & Rdata & Base & Roff { local ea=Base+Roff; *[ram]:1 ea = Rdata:1; }
+:GETB Rdata,[Base++] is op=0xc & m27=0 & m24=0 & m26=0 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; Rdata=zext(*[ram]:1 ea); Base=Base+goff*1; }
+:SETB [Base++],Rdata is op=0xb & m27=0 & m24=0 & m26=0 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; *[ram]:1 ea = Rdata:1; Base=Base+goff*1; }
+:GETW Rdata,[Base+goff] is op=0xc & m27=0 & m24=1 & m26=0 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*2; Rdata=zext(*[ram]:2 ea); }
+:SETW [Base+goff],Rdata is op=0xb & m27=0 & m24=1 & m26=0 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*2; *[ram]:2 ea = Rdata:2; }
+:GETW Rdata,[Base+Roff] is op=0xc & m27=0 & m24=1 & m26=0 & gimm=0 & ua7=0 & Rdata & Base & Roff { local ea=Base+Roff; Rdata=zext(*[ram]:2 ea); }
+:SETW [Base+Roff],Rdata is op=0xb & m27=0 & m24=1 & m26=0 & gimm=0 & ua7=0 & Rdata & Base & Roff { local ea=Base+Roff; *[ram]:2 ea = Rdata:2; }
+:GETW Rdata,[Base++] is op=0xc & m27=0 & m24=1 & m26=0 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; Rdata=zext(*[ram]:2 ea); Base=Base+goff*2; }
+:SETW [Base++],Rdata is op=0xb & m27=0 & m24=1 & m26=0 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; *[ram]:2 ea = Rdata:2; Base=Base+goff*2; }
+:GETD Rdata,[Base+goff] is op=0xc & m27=0 & m24=0 & m26=1 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*4; Rdata=*[ram]:4 ea; }
+:SETD [Base+goff],Rdata is op=0xb & m27=0 & m24=0 & m26=1 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*4; *[ram]:4 ea = Rdata; }
+:GETD Rdata,[Base+Roff] is op=0xc & m27=0 & m24=0 & m26=1 & gimm=0 & ua7=0 & Rdata & Base & Roff { local ea=Base+Roff; Rdata=*[ram]:4 ea; }
+:SETD [Base+Roff],Rdata is op=0xb & m27=0 & m24=0 & m26=1 & gimm=0 & ua7=0 & Rdata & Base & Roff { local ea=Base+Roff; *[ram]:4 ea = Rdata; }
+:GETD Rdata,[Base++] is op=0xc & m27=0 & m24=0 & m26=1 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; Rdata=*[ram]:4 ea; Base=Base+goff*4; }
+:SETD [Base++],Rdata is op=0xb & m27=0 & m24=0 & m26=1 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; *[ram]:4 ea = Rdata; Base=Base+goff*4; }
+# ---- GETL/SETL (64-bit pair, approx as 4-byte) ----
+:GETL Rdata,[Base+goff] is op=0xc & m27=0 & m24=1 & m26=1 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*8; Rdata=*[ram]:4 ea; }
+:SETL [Base+goff],Rdata is op=0xb & m27=0 & m24=1 & m26=1 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*8; *[ram]:4 ea = Rdata; }
+# ---- MGET/MSET push/pop ----
+:MSETL [Base++] is op=0xb & minor=9 & Base & rmask { local n:4=(popcount(rmask:4)+1)*8; Base=Base+n; }
+:MSETD [Base++] is op=0xb & minor=8 & Base & rmask { local n:4=(popcount(rmask:4)+1)*4; Base=Base+n; }
+:MGETL [Base++] is op=0xc & minor=9 & Base & rmask { local n:4=(popcount(rmask:4)+1)*8; Base=Base+n; }
+:MGETD [Base++] is op=0xc & minor=8 & Base & rmask { local n:4=(popcount(rmask:4)+1)*4; Base=Base+n; }
+# ---- extended GET/SET (op=0xa, minor 7=GET 5=SET) ----
+RdataExt: erno_d0 is eru=1 & erno_d0 { export erno_d0; }
+RdataExt: erno_d1 is eru=2 & erno_d1 { export erno_d1; }
+RdataExt: erno_a0 is eru=3 & erno_a0 { export erno_a0; }
+RdataExt: erno_a1 is eru=0 & erno_a1 { export erno_a1; }
+BaseExt: ebno_a0 is ebu=3 & ebno_a0 { export ebno_a0; }
+BaseExt: ebno_d0 is ebu=1 & ebno_d0 { export ebno_d0; }
+BaseExt: ebno_d1 is ebu=2 & ebno_d1 { export ebno_d1; }
+BaseExt: ebno_a1 is ebu=0 & ebno_a1 { export ebno_a1; }
+:GETB RdataExt,[BaseExt+eoff] is op=0xa & minor=7 & es=0 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*1; RdataExt=zext(*[ram]:1 ea); }
+:SETB [BaseExt+eoff],RdataExt is op=0xa & minor=5 & es=0 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*1; *[ram]:1 ea = RdataExt:1; }
+:GETW RdataExt,[BaseExt+eoff] is op=0xa & minor=7 & es=1 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*2; RdataExt=zext(*[ram]:2 ea); }
+:SETW [BaseExt+eoff],RdataExt is op=0xa & minor=5 & es=1 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*2; *[ram]:2 ea = RdataExt:2; }
+:GETD RdataExt,[BaseExt+eoff] is op=0xa & minor=7 & es=2 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*4; RdataExt=*[ram]:4 ea; }
+:SETD [BaseExt+eoff],RdataExt is op=0xa & minor=5 & es=2 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*4; *[ram]:4 ea = RdataExt; }
+:GETL RdataExt,[BaseExt+eoff] is op=0xa & minor=7 & es=3 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*8; RdataExt=*[ram]:4 ea; }
+:SETL [BaseExt+eoff],RdataExt is op=0xa & minor=5 & es=3 & RdataExt & BaseExt & eoff { local ea=BaseExt+eoff*8; *[ram]:4 ea = RdataExt; }
+# ---- v0.5 batch: ADDT/MOVT, shifts, set-flags, SWAP ----
+:MOVT Ddst,umm16 is op=0x0 & i25=1 & b0=1 & o1zb=1 & Ddst & umm16 { Ddst = umm16 << 16; }
+:ADDT Ddst,Ds1,umm16 is op=0x0 & i25=1 & b0=1 & o1zb=0 & Ddst & Ds1 & umm16 { Ddst = Ds1 + (umm16 << 16); }
+:MOVT Adst,umm16 is op=0x8 & i25=1 & b0=1 & o1zb=1 & Adst & umm16 { Adst = umm16 << 16; }
+:ADDT Adst,As1,umm16 is op=0x8 & i25=1 & b0=1 & o1zb=0 & Adst & As1 & umm16 { Adst = As1 + (umm16 << 16); }
+:LSL Ddst,Ds1,Ds2 is op=0x5 & i25=0 & st=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 << Ds2; }
+:LSL Ddst,Ds1,shamt5 is op=0x5 & i25=1 & st=0 & Ddst & Ds1 & shamt5 { Ddst = Ds1 << shamt5; }
+:LSR Ddst,Ds1,Ds2 is op=0x5 & i25=0 & st=1 & Ddst & Ds1 & Ds2 { Ddst = Ds1 >> Ds2; }
+:LSR Ddst,Ds1,shamt5 is op=0x5 & i25=1 & st=1 & Ddst & Ds1 & shamt5 { Ddst = Ds1 >> shamt5; }
+:ASL Ddst,Ds1,Ds2 is op=0x5 & i25=0 & st=2 & Ddst & Ds1 & Ds2 { Ddst = Ds1 << Ds2; }
+:ASL Ddst,Ds1,shamt5 is op=0x5 & i25=1 & st=2 & Ddst & Ds1 & shamt5 { Ddst = Ds1 << shamt5; }
+:ASR Ddst,Ds1,Ds2 is op=0x5 & i25=0 & st=3 & Ddst & Ds1 & Ds2 { Ddst = Ds1 s>> Ds2; }
+:ASR Ddst,Ds1,shamt5 is op=0x5 & i25=1 & st=3 & Ddst & Ds1 & shamt5 { Ddst = Ds1 s>> shamt5; }
+:ADDS Ddst,Ds1,Ds2 is op=0x0 & i25=0 & c26=0 & m27=1 & Ddst & Ds1 & Ds2 { CF=carry(Ds1,Ds2); Ddst=Ds1+Ds2; ZF=(Ddst==0); NF=(Ddst s< 0); }
+:SUBS Ddst,Ds1,Ds2 is op=0x1 & i25=0 & c26=0 & m27=1 & Ddst & Ds1 & Ds2 { CF=(Ds1 < Ds2); Ddst=Ds1-Ds2; ZF=(Ddst==0); NF=(Ddst s< 0); }
+:ANDS Ddst,Ds1,Ds2 is op=0x2 & i25=0 & c26=0 & m27=1 & Ddst & Ds1 & Ds2 { Ddst=Ds1&Ds2; ZF=(Ddst==0); NF=(Ddst s< 0); }
+:ORS Ddst,Ds1,Ds2 is op=0x3 & i25=0 & c26=0 & m27=1 & Ddst & Ds1 & Ds2 { Ddst=Ds1|Ds2; ZF=(Ddst==0); NF=(Ddst s< 0); }
+:SWAP Udst,Usrc is op=0xa & minor=3 & b9=1 & Udst & Usrc { local t=Udst; Udst=Usrc; Usrc=t; }
+# ---- v0.6: condition subtable, cond-ALU, NEG, JUMP, NOP ----
+CND: "EQ" is ccf=1 { local c:1 = ZF; export c; }
+CND: "NE" is ccf=2 { local c:1 = ZF==0; export c; }
+CND: "CS" is ccf=3 { local c:1 = CF; export c; }
+CND: "CC" is ccf=4 { local c:1 = CF==0; export c; }
+CND: "MI" is ccf=5 { local c:1 = NF; export c; }
+CND: "PL" is ccf=6 { local c:1 = NF==0; export c; }
+CND: "VS" is ccf=7 { local c:1 = VF; export c; }
+CND: "VC" is ccf=8 { local c:1 = VF==0; export c; }
+CND: "HI" is ccf=9 { local c:1 = CF&&ZF==0; export c; }
+CND: "LS" is ccf=10 { local c:1 = CF==0||ZF; export c; }
+CND: "GE" is ccf=11 { local c:1 = NF==VF; export c; }
+CND: "LT" is ccf=12 { local c:1 = NF!=VF; export c; }
+CND: "GT" is ccf=13 { local c:1 = ZF==0&&NF==VF; export c; }
+CND: "LE" is ccf=14 { local c:1 = ZF||NF!=VF; export c; }
+:ADD Ddst,Ds1,Ds2,CND is op=0x0 & i25=0 & c26=1 & Ddst & Ds1 & Ds2 & CND { if (CND==0) goto <done>; Ddst=Ds1+Ds2; <done> }
+:SUB Ddst,Ds1,Ds2,CND is op=0x1 & i25=0 & c26=1 & Ddst & Ds1 & Ds2 & CND { if (CND==0) goto <done>; Ddst=Ds1-Ds2; <done> }
+:ADD Adst,As1,As2,CND is op=0x8 & i25=0 & c26=1 & Adst & As1 & As2 & CND { if (CND==0) goto <done>; Adst=As1+As2; <done> }
+:MOV Ddst,imm16,CND is op=0x0 & i25=1 & c26=1 & o1zb=1 & Ddst & imm16 & CND { if (CND==0) goto <done>; Ddst=imm16; <done> }
+:NEG Ddst,Ds2 is op=0x1 & i25=0 & c26=0 & o1zb=1 & m27=0 & Ddst & Ds2 { Ddst = -Ds2; }
+:NEG Ddst,imm16 is op=0x1 & i25=1 & c26=0 & o1zb=1 & b0=0 & Ddst & imm16 { Ddst = -imm16; }
+JReg: jrno_a1 is jru=0 & jrno_a1 { export jrno_a1; }
+JReg: jrno_d0 is jru=1 & jrno_d0 { export jrno_d0; }
+JReg: jrno_d1 is jru=2 & jrno_d1 { export jrno_d1; }
+JReg: jrno_a0 is jru=3 & jrno_a0 { export jrno_a0; }
+:JUMP JReg,joff is op=0xa & minor=0xc & JReg & joff { local t=JReg+joff; goto [t]; }
+:NOP is op=0xa & minor=0 & bcc=0xf { }
+# ---- v0.7: MIN/MAX/ABS, imm logic, and-top, XORS, XSDW/XSDB, XFR, catch-all ----
+:MIN Ddst,Ds1,Ds2 is op=0x7 & minor=0 & op7sub=0x8 & Ddst & Ds1 & Ds2 { Ddst=Ds1; if (Ds1 s< Ds2) goto <m>; Ddst=Ds2; <m> }
+:MAX Ddst,Ds1,Ds2 is op=0x7 & minor=0 & op7sub=0x9 & Ddst & Ds1 & Ds2 { Ddst=Ds1; if (Ds1 s> Ds2) goto <m>; Ddst=Ds2; <m> }
+:ABS Ddst,Ds1 is op=0x7 & minor=0 & op7sub=0xa & Ddst & Ds1 { Ddst=Ds1; if (Ds1 s>= 0) goto <m>; Ddst=0-Ds1; <m> }
+:AND Ddst,Ds1,imm16 is op=0x2 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 & imm16; }
+:OR Ddst,Ds1,imm16 is op=0x3 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 | imm16; }
+:XOR Ddst,Ds1,imm16 is op=0x4 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 ^ imm16; }
+:ANDT Ddst,Ds1,umm16 is op=0x2 & i25=1 & b0=1 & o1zb=0 & Ddst & Ds1 & umm16 { Ddst = Ds1 & (umm16 << 16); }
+:ORT Ddst,Ds1,umm16 is op=0x3 & i25=1 & b0=1 & o1zb=0 & Ddst & Ds1 & umm16 { Ddst = Ds1 | (umm16 << 16); }
+:XORT Ddst,Ds1,umm16 is op=0x4 & i25=1 & b0=1 & o1zb=0 & Ddst & Ds1 & umm16 { Ddst = Ds1 ^ (umm16 << 16); }
+:XORS Ddst,Ds1,Ds2 is op=0x4 & i25=0 & c26=0 & m27=1 & Ddst & Ds1 & Ds2 { Ddst=Ds1^Ds2; ZF=(Ddst==0); NF=(Ddst s< 0); }
+:XSDB Ddst,Ds1 is op=0xa & minor=0xa & b1=0 & Ddst & Ds1 { Ddst = sext(Ds1:1); }
+:XSDW Ddst,Ds1 is op=0xa & minor=0xa & b1=1 & Ddst & Ds1 { Ddst = sext(Ds1:2); }
+# ---- generic per-major fallbacks (lowest priority; specifics win) ----
+:op0 is op=0x0 { }
+:op1 is op=0x1 { }
+:op2 is op=0x2 { }
+:op3 is op=0x3 { }
+:op4 is op=0x4 { }
+:op5 is op=0x5 { }
+:mul_g is op=0x6 { }
+:op7 is op=0x7 { }
+:addr_g is op=0x8 { }
+:op9 is op=0x9 { }
+:misc_g is op=0xa { }
+:set_g is op=0xb { }
+:get_g is op=0xc { }
+:xfr is op=0xd { }
+:cpr is op=0xe { }
+:fpu is op=0xf { }
