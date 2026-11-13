@@ -14,10 +14,12 @@ define token instr(32)
   m24=(24,24) m26=(26,26) m27=(27,27) gimm=(25,25) ua7=(7,7) pp0=(0,0) b0=(0,0)
   boff=(5,23) signed bcc=(1,4) misc24=(0,23) rmask=(7,13)
   imm16=(3,18) signed
+  imm8=(6,13) ca5=(5,5) dnu=(1,4) reth=(5,23)
   dno=(19,23) s1no=(14,18) s2no=(9,13)
   dno_d1=(19,23) s1no_d1=(14,18) s2no_d1=(9,13)
   dno_a0=(19,23) dno_a1=(19,23) s1no_a0=(14,18) s1no_a1=(14,18) s2no_a0=(9,13) s2no_a1=(9,13)
   gu=(1,4) gdno=(19,23) gdno_d1=(19,23) gdno_a0=(19,23) gdno_a1=(19,23)
+  msbn=(19,23)
   bu=(5,6) bno_a1=(14,18) bno_d0=(14,18) bno_d1=(14,18) bno_a0=(14,18)
   goff=(8,13) signed gor_d0=(9,13) gor_d1=(9,13) gor_a0=(9,13) gor_a1=(9,13)
   mdu=(5,8) mdn=(14,18) msu=(10,13) msn=(19,23)
@@ -98,7 +100,7 @@ btarg: reloc is boff [ reloc = inst_start + (boff << 2); ] { export *:4 reloc; }
 :BR btarg is op=0xa & minor=0 & bcc=0 & b0=1 & btarg { TXRPT=TXRPT-1; if (TXRPT!=0) goto btarg; }
 :CALLR btarg is op=0xa & minor=0xb & btarg { D1RtP = inst_next; call btarg; }
 :RET is op=0xa & minor=3 & misc24=0x2008a0 { return [D1RtP]; }
-:RET is op=0xa & minor=3 & misc24=0x200aa0 { return [D1RtP]; }
+:CALLRtp is op=0xa & minor=3 & misc24=0x200aa0 { local t=D1RtP; D1RtP=inst_next; call [t]; }
 # ---- MOV cross-unit (op=0xa minor=3) ----
 :MOV Usrc is op=0xa & minor=3 & b9=0 & mdu=0 & mdn=3 & Usrc { TXRPT = Usrc; }
 :MOV Udst,Usrc is op=0xa & minor=3 & b9=0 & Udst & Usrc { Udst = Usrc; }
@@ -113,14 +115,14 @@ btarg: reloc is boff [ reloc = inst_start + (boff << 2); ] { export *:4 reloc; }
 :TST Ds1,Ds2 is op=0x2 & i25=0 & c26=1 & Ds1 & Ds2 { local d=Ds1&Ds2; ZF=(d==0); NF=(d s< 0); }
 # ---- GP ALU immediate ----
 :MOV Ddst,imm16 is op=0x0 & i25=1 & c26=0 & b0=0 & o1zb=1 & Ddst & imm16 { Ddst = imm16; }
-:ADD Ddst,Ds1,imm16 is op=0x0 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 + imm16; }
-:SUB Ddst,Ds1,imm16 is op=0x1 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & Ds1 & imm16 { Ddst = Ds1 - imm16; }
-:CMP Ds1,imm16 is op=0x7 & i25=1 & c26=0 & Ds1 & imm16 { local d=Ds1-imm16; ZF=(d==0); NF=(d s< 0); }
+:ADD Ddst,imm16 is op=0x0 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & imm16 { Ddst = Ddst + imm16; }
+:SUB Ddst,imm16 is op=0x1 & i25=1 & c26=0 & b0=0 & o1zb=0 & Ddst & imm16 { Ddst = Ddst - imm16; }
+:CMP Ddst,imm16 is op=0x7 & i25=1 & c26=0 & Ddst & imm16 { local d=Ddst-imm16; ZF=(d==0); NF=(d s< 0); CF=(Ddst < imm16); }
 # ---- ADDR-unit ALU (A0/A1) ----
 :ADD Adst,As1,As2 is op=0x8 & m27=0 & i25=0 & c26=0 & Adst & As1 & As2 { Adst = As1 + As2; }
-:ADD Adst,As1,imm16 is op=0x8 & m27=0 & i25=1 & c26=0 & b0=0 & o1zb=0 & Adst & As1 & imm16 { Adst = As1 + imm16; }
+:ADD Adst,imm16 is op=0x8 & m27=0 & i25=1 & c26=0 & b0=0 & o1zb=0 & Adst & imm16 { Adst = Adst + imm16; }
 :SUB Adst,As1,As2 is op=0x8 & m27=1 & i25=0 & c26=0 & Adst & As1 & As2 { Adst = As1 - As2; }
-:SUB Adst,As1,imm16 is op=0x8 & m27=1 & i25=1 & c26=0 & o1zb=0 & Adst & As1 & imm16 { Adst = As1 - imm16; }
+:SUB Adst,imm16 is op=0x8 & m27=1 & i25=1 & c26=0 & o1zb=0 & Adst & imm16 { Adst = Adst - imm16; }
 :MOV Adst,imm16 is op=0x8 & m27=0 & i25=1 & c26=0 & b0=0 & o1zb=1 & Adst & imm16 { Adst = imm16; }
 # ---- GET/SET (base+imm / base+reg / base++) ----
 :GETB Rdata,[Base+goff] is op=0xc & m27=0 & m24=0 & m26=0 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*1; Rdata=zext(*[ram]:1 ea); }
@@ -142,7 +144,9 @@ btarg: reloc is boff [ reloc = inst_start + (boff << 2); ] { export *:4 reloc; }
 :GETD Rdata,[Base++] is op=0xc & m27=0 & m24=0 & m26=1 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; Rdata=*[ram]:4 ea; Base=Base+goff*4; }
 :SETD [Base++],Rdata is op=0xb & m27=0 & m24=0 & m26=1 & gimm=1 & ua7=1 & Rdata & Base & goff { local ea=Base; *[ram]:4 ea = Rdata; Base=Base+goff*4; }
 # ---- GETL/SETL (64-bit pair, approx as 4-byte) ----
+:GETL gdno,gdno_d1,[Base+goff] is op=0xc & m27=0 & m24=1 & m26=1 & gimm=1 & ua7=0 & gu=1 & gdno & gdno_d1 & Base & goff { local ea=Base+goff*8; gdno=*[ram]:4 ea; gdno_d1=*[ram]:4 (ea+4); }
 :GETL Rdata,[Base+goff] is op=0xc & m27=0 & m24=1 & m26=1 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*8; Rdata=*[ram]:4 ea; }
+:SETL [Base+goff],gdno,gdno_d1 is op=0xb & m27=0 & m24=1 & m26=1 & gimm=1 & ua7=0 & gu=1 & gdno & gdno_d1 & Base & goff { local ea=Base+goff*8; *[ram]:4 ea = gdno; *[ram]:4 (ea+4) = gdno_d1; }
 :SETL [Base+goff],Rdata is op=0xb & m27=0 & m24=1 & m26=1 & gimm=1 & ua7=0 & Rdata & Base & goff { local ea=Base+goff*8; *[ram]:4 ea = Rdata; }
 # ---- MGET/MSET push/pop ----
 :MSETL [Base++] is op=0xb & minor=9 & Base & rmask { local n:4=(popcount(rmask:4)+1)*8; Base=Base+n; }
@@ -241,3 +245,103 @@ JReg: jrno_a0 is jru=3 & jrno_a0 { export jrno_a0; }
 :xfr is op=0xd { }
 :cpr is op=0xe { }
 :fpu is op=0xf { }
+
+# ================= conditional / 8-bit-immediate ALU (completion) =============
+# cross-unit destination select when ca(bit5)=1: unit from dnu=(1,4) 1=D0 2=D1 3=A0 4=A1
+DdstX: dno    is dnu=1 & dno    { export dno; }
+DdstX: dno_d1 is dnu=2 & dno_d1 { export dno_d1; }
+DdstX: dno_a0 is dnu=3 & dno_a0 { export dno_a0; }
+DdstX: dno_a1 is dnu=4 & dno_a1 { export dno_a1; }
+
+# condition boolean (ccf=(1,4)); 0=always and 15=never handled outside
+ALUcc: "eq" is ccf=1  { local t = ZF!=0;              export t; }
+ALUcc: "ne" is ccf=2  { local t = ZF==0;              export t; }
+ALUcc: "cs" is ccf=3  { local t = CF!=0;              export t; }
+ALUcc: "cc" is ccf=4  { local t = CF==0;              export t; }
+ALUcc: "mi" is ccf=5  { local t = NF!=0;              export t; }
+ALUcc: "pl" is ccf=6  { local t = NF==0;              export t; }
+ALUcc: "vs" is ccf=7  { local t = VF!=0;              export t; }
+ALUcc: "vc" is ccf=8  { local t = VF==0;              export t; }
+ALUcc: "hi" is ccf=9  { local t = (CF!=0)&&(ZF==0);   export t; }
+ALUcc: "ls" is ccf=10 { local t = (CF==0)||(ZF!=0);   export t; }
+ALUcc: "ge" is ccf=11 { local t = NF==VF;             export t; }
+ALUcc: "lt" is ccf=12 { local t = NF!=VF;             export t; }
+ALUcc: "gt" is ccf=13 { local t = (ZF==0)&&(NF==VF);  export t; }
+ALUcc: "le" is ccf=14 { local t = (ZF!=0)||(NF!=VF);  export t; }
+
+# --- ADD/SUB/AND/OR/XOR  with 8-bit immediate (op=0..4, i25=1, c26=1) ---
+# ca=1: cross-unit, unconditional
+:ADD DdstX,Ds1,imm8 is op=0x0 & i25=1 & c26=1 & ca5=1 & DdstX & Ds1 & imm8 { DdstX = Ds1 + imm8; }
+:SUB DdstX,Ds1,imm8 is op=0x1 & i25=1 & c26=1 & ca5=1 & DdstX & Ds1 & imm8 { DdstX = Ds1 - imm8; }
+:AND DdstX,Ds1,imm8 is op=0x2 & i25=1 & c26=1 & ca5=1 & DdstX & Ds1 & imm8 { DdstX = Ds1 & imm8; }
+:OR  DdstX,Ds1,imm8 is op=0x3 & i25=1 & c26=1 & ca5=1 & DdstX & Ds1 & imm8 { DdstX = Ds1 | imm8; }
+:XOR DdstX,Ds1,imm8 is op=0x4 & i25=1 & c26=1 & ca5=1 & DdstX & Ds1 & imm8 { DdstX = Ds1 ^ imm8; }
+# ca=0, cc=A: same-unit, unconditional
+:ADD Ddst,Ds1,imm8 is op=0x0 & i25=1 & c26=1 & ca5=0 & ccf=0 & Ddst & Ds1 & imm8 { Ddst = Ds1 + imm8; }
+:SUB Ddst,Ds1,imm8 is op=0x1 & i25=1 & c26=1 & ca5=0 & ccf=0 & Ddst & Ds1 & imm8 { Ddst = Ds1 - imm8; }
+:AND Ddst,Ds1,imm8 is op=0x2 & i25=1 & c26=1 & ca5=0 & ccf=0 & Ddst & Ds1 & imm8 { Ddst = Ds1 & imm8; }
+:OR  Ddst,Ds1,imm8 is op=0x3 & i25=1 & c26=1 & ca5=0 & ccf=0 & Ddst & Ds1 & imm8 { Ddst = Ds1 | imm8; }
+:XOR Ddst,Ds1,imm8 is op=0x4 & i25=1 & c26=1 & ca5=0 & ccf=0 & Ddst & Ds1 & imm8 { Ddst = Ds1 ^ imm8; }
+# ca=0, cc!=A: same-unit, conditional (predicated)
+:ADD Ddst,Ds1,imm8,ALUcc is op=0x0 & i25=1 & c26=1 & ca5=0 & Ddst & Ds1 & imm8 & ALUcc { if (ALUcc==0) goto <sk>; Ddst = Ds1 + imm8; <sk> }
+:SUB Ddst,Ds1,imm8,ALUcc is op=0x1 & i25=1 & c26=1 & ca5=0 & Ddst & Ds1 & imm8 & ALUcc { if (ALUcc==0) goto <sk>; Ddst = Ds1 - imm8; <sk> }
+:AND Ddst,Ds1,imm8,ALUcc is op=0x2 & i25=1 & c26=1 & ca5=0 & Ddst & Ds1 & imm8 & ALUcc { if (ALUcc==0) goto <sk>; Ddst = Ds1 & imm8; <sk> }
+:OR  Ddst,Ds1,imm8,ALUcc is op=0x3 & i25=1 & c26=1 & ca5=0 & Ddst & Ds1 & imm8 & ALUcc { if (ALUcc==0) goto <sk>; Ddst = Ds1 | imm8; <sk> }
+:XOR Ddst,Ds1,imm8,ALUcc is op=0x4 & i25=1 & c26=1 & ca5=0 & Ddst & Ds1 & imm8 & ALUcc { if (ALUcc==0) goto <sk>; Ddst = Ds1 ^ imm8; <sk> }
+
+# --- conditional MOV PC,D1RtP  == conditional RET ---
+:RET ALUcc is op=0xa & minor=3 & b0=0 & reth=0x10045 & ALUcc { if (ALUcc==0) goto <sk>; return [D1RtP]; <sk> }
+:RET ALUcc is op=0xa & minor=3 & b0=0 & reth=0x10055 & ALUcc { if (ALUcc==0) goto <sk>; return [D1RtP]; <sk> }
+
+# ---- MSETL/MGETL D-unit (su=1) register save/restore (pairs D0.k/D1.k) ----
+# Generated from the real reg-list algorithm (binutils metag-dis.c):
+#   reg_no=bits(19,23); list = reg_no, then reg_no+i for each set bit i-1 of rmask.
+# MSETL op=0xb, MGETL op=0xc, minor=9, unit bits(3,4)=1.
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=0 & rmask=0x03 & Base { local p=Base; D0Re0=*[ram]:4 (p+0); D1Re0=*[ram]:4 (p+4); D0Ar6=*[ram]:4 (p+8); D1Ar5=*[ram]:4 (p+12); D0Ar4=*[ram]:4 (p+16); D1Ar3=*[ram]:4 (p+20); Base=Base+24; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=0 & rmask=0x13 & Base { local p=Base; D0Re0=*[ram]:4 (p+0); D1Re0=*[ram]:4 (p+4); D0Ar6=*[ram]:4 (p+8); D1Ar5=*[ram]:4 (p+12); D0Ar4=*[ram]:4 (p+16); D1Ar3=*[ram]:4 (p+20); D0_5=*[ram]:4 (p+24); D1_5=*[ram]:4 (p+28); Base=Base+32; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=1 & rmask=0x03 & Base { local p=Base; D0Ar6=*[ram]:4 (p+0); D1Ar5=*[ram]:4 (p+4); D0Ar4=*[ram]:4 (p+8); D1Ar3=*[ram]:4 (p+12); D0Ar2=*[ram]:4 (p+16); D1Ar1=*[ram]:4 (p+20); Base=Base+24; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=1 & rmask=0x3f & Base { local p=Base; D0Ar6=*[ram]:4 (p+0); D1Ar5=*[ram]:4 (p+4); D0Ar4=*[ram]:4 (p+8); D1Ar3=*[ram]:4 (p+12); D0Ar2=*[ram]:4 (p+16); D1Ar1=*[ram]:4 (p+20); D0FrT=*[ram]:4 (p+24); D1RtP=*[ram]:4 (p+28); D0_5=*[ram]:4 (p+32); D1_5=*[ram]:4 (p+36); D0_6=*[ram]:4 (p+40); D1_6=*[ram]:4 (p+44); D0_7=*[ram]:4 (p+48); D1_7=*[ram]:4 (p+52); Base=Base+56; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=2 & rmask=0x01 & Base { local p=Base; D0Ar4=*[ram]:4 (p+0); D1Ar3=*[ram]:4 (p+4); D0Ar2=*[ram]:4 (p+8); D1Ar1=*[ram]:4 (p+12); Base=Base+16; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=2 & rmask=0x03 & Base { local p=Base; D0Ar4=*[ram]:4 (p+0); D1Ar3=*[ram]:4 (p+4); D0Ar2=*[ram]:4 (p+8); D1Ar1=*[ram]:4 (p+12); D0FrT=*[ram]:4 (p+16); D1RtP=*[ram]:4 (p+20); Base=Base+24; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=2 & rmask=0x07 & Base { local p=Base; D0Ar4=*[ram]:4 (p+0); D1Ar3=*[ram]:4 (p+4); D0Ar2=*[ram]:4 (p+8); D1Ar1=*[ram]:4 (p+12); D0FrT=*[ram]:4 (p+16); D1RtP=*[ram]:4 (p+20); D0_5=*[ram]:4 (p+24); D1_5=*[ram]:4 (p+28); Base=Base+32; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=4 & rmask=0x01 & Base { local p=Base; D0FrT=*[ram]:4 (p+0); D1RtP=*[ram]:4 (p+4); D0_5=*[ram]:4 (p+8); D1_5=*[ram]:4 (p+12); Base=Base+16; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=4 & rmask=0x03 & Base { local p=Base; D0FrT=*[ram]:4 (p+0); D1RtP=*[ram]:4 (p+4); D0_5=*[ram]:4 (p+8); D1_5=*[ram]:4 (p+12); D0_6=*[ram]:4 (p+16); D1_6=*[ram]:4 (p+20); Base=Base+24; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=4 & rmask=0x07 & Base { local p=Base; D0FrT=*[ram]:4 (p+0); D1RtP=*[ram]:4 (p+4); D0_5=*[ram]:4 (p+8); D1_5=*[ram]:4 (p+12); D0_6=*[ram]:4 (p+16); D1_6=*[ram]:4 (p+20); D0_7=*[ram]:4 (p+24); D1_7=*[ram]:4 (p+28); Base=Base+32; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=5 & rmask=0x01 & Base { local p=Base; D0_5=*[ram]:4 (p+0); D1_5=*[ram]:4 (p+4); D0_6=*[ram]:4 (p+8); D1_6=*[ram]:4 (p+12); Base=Base+16; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=5 & rmask=0x03 & Base { local p=Base; D0_5=*[ram]:4 (p+0); D1_5=*[ram]:4 (p+4); D0_6=*[ram]:4 (p+8); D1_6=*[ram]:4 (p+12); D0_7=*[ram]:4 (p+16); D1_7=*[ram]:4 (p+20); Base=Base+24; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=8 & rmask=0x74 & Base { local p=Base; D0_8=*[ram]:4 (p+0); D1_8=*[ram]:4 (p+4); D0_11=*[ram]:4 (p+8); D1_11=*[ram]:4 (p+12); D0_13=*[ram]:4 (p+16); D1_13=*[ram]:4 (p+20); D0_14=*[ram]:4 (p+24); D1_14=*[ram]:4 (p+28); D0_15=*[ram]:4 (p+32); D1_15=*[ram]:4 (p+36); Base=Base+40; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=9 & rmask=0x12 & Base { local p=Base; D0_9=*[ram]:4 (p+0); D1_9=*[ram]:4 (p+4); D0_11=*[ram]:4 (p+8); D1_11=*[ram]:4 (p+12); D0_14=*[ram]:4 (p+16); D1_14=*[ram]:4 (p+20); Base=Base+24; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=9 & rmask=0x13 & Base { local p=Base; D0_9=*[ram]:4 (p+0); D1_9=*[ram]:4 (p+4); D0_10=*[ram]:4 (p+8); D1_10=*[ram]:4 (p+12); D0_11=*[ram]:4 (p+16); D1_11=*[ram]:4 (p+20); D0_14=*[ram]:4 (p+24); D1_14=*[ram]:4 (p+28); Base=Base+32; }
+:MGETL [Base++] is op=0xc & minor=9 & eru=1 & msbn=11 & rmask=0x17 & Base { local p=Base; D0_11=*[ram]:4 (p+0); D1_11=*[ram]:4 (p+4); D0_12=*[ram]:4 (p+8); D1_12=*[ram]:4 (p+12); D0_13=*[ram]:4 (p+16); D1_13=*[ram]:4 (p+20); D0_14=*[ram]:4 (p+24); D1_14=*[ram]:4 (p+28); D0_16=*[ram]:4 (p+32); D1_16=*[ram]:4 (p+36); Base=Base+40; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=0 & rmask=0x08 & Base { local p=Base; *[ram]:4 (p+0)=D0Re0; *[ram]:4 (p+4)=D1Re0; *[ram]:4 (p+8)=D0FrT; *[ram]:4 (p+12)=D1RtP; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=0 & rmask=0x13 & Base { local p=Base; *[ram]:4 (p+0)=D0Re0; *[ram]:4 (p+4)=D1Re0; *[ram]:4 (p+8)=D0Ar6; *[ram]:4 (p+12)=D1Ar5; *[ram]:4 (p+16)=D0Ar4; *[ram]:4 (p+20)=D1Ar3; *[ram]:4 (p+24)=D0_5; *[ram]:4 (p+28)=D1_5; Base=Base+32; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=0 & rmask=0x7f & Base { local p=Base; *[ram]:4 (p+0)=D0Re0; *[ram]:4 (p+4)=D1Re0; *[ram]:4 (p+8)=D0Ar6; *[ram]:4 (p+12)=D1Ar5; *[ram]:4 (p+16)=D0Ar4; *[ram]:4 (p+20)=D1Ar3; *[ram]:4 (p+24)=D0Ar2; *[ram]:4 (p+28)=D1Ar1; *[ram]:4 (p+32)=D0FrT; *[ram]:4 (p+36)=D1RtP; *[ram]:4 (p+40)=D0_5; *[ram]:4 (p+44)=D1_5; *[ram]:4 (p+48)=D0_6; *[ram]:4 (p+52)=D1_6; *[ram]:4 (p+56)=D0_7; *[ram]:4 (p+60)=D1_7; Base=Base+64; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x01 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x03 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0Ar2; *[ram]:4 (p+20)=D1Ar1; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x04 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0FrT; *[ram]:4 (p+12)=D1RtP; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x05 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0FrT; *[ram]:4 (p+20)=D1RtP; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x07 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0Ar2; *[ram]:4 (p+20)=D1Ar1; *[ram]:4 (p+24)=D0FrT; *[ram]:4 (p+28)=D1RtP; Base=Base+32; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x0d & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0FrT; *[ram]:4 (p+20)=D1RtP; *[ram]:4 (p+24)=D0_5; *[ram]:4 (p+28)=D1_5; Base=Base+32; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x0f & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0Ar2; *[ram]:4 (p+20)=D1Ar1; *[ram]:4 (p+24)=D0FrT; *[ram]:4 (p+28)=D1RtP; *[ram]:4 (p+32)=D0_5; *[ram]:4 (p+36)=D1_5; Base=Base+40; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x1d & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0FrT; *[ram]:4 (p+20)=D1RtP; *[ram]:4 (p+24)=D0_5; *[ram]:4 (p+28)=D1_5; *[ram]:4 (p+32)=D0_6; *[ram]:4 (p+36)=D1_6; Base=Base+40; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x3c & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0FrT; *[ram]:4 (p+12)=D1RtP; *[ram]:4 (p+16)=D0_5; *[ram]:4 (p+20)=D1_5; *[ram]:4 (p+24)=D0_6; *[ram]:4 (p+28)=D1_6; *[ram]:4 (p+32)=D0_7; *[ram]:4 (p+36)=D1_7; Base=Base+40; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x3d & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0FrT; *[ram]:4 (p+20)=D1RtP; *[ram]:4 (p+24)=D0_5; *[ram]:4 (p+28)=D1_5; *[ram]:4 (p+32)=D0_6; *[ram]:4 (p+36)=D1_6; *[ram]:4 (p+40)=D0_7; *[ram]:4 (p+44)=D1_7; Base=Base+48; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x3f & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar4; *[ram]:4 (p+12)=D1Ar3; *[ram]:4 (p+16)=D0Ar2; *[ram]:4 (p+20)=D1Ar1; *[ram]:4 (p+24)=D0FrT; *[ram]:4 (p+28)=D1RtP; *[ram]:4 (p+32)=D0_5; *[ram]:4 (p+36)=D1_5; *[ram]:4 (p+40)=D0_6; *[ram]:4 (p+44)=D1_6; *[ram]:4 (p+48)=D0_7; *[ram]:4 (p+52)=D1_7; Base=Base+56; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=1 & rmask=0x72 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar6; *[ram]:4 (p+4)=D1Ar5; *[ram]:4 (p+8)=D0Ar2; *[ram]:4 (p+12)=D1Ar1; *[ram]:4 (p+16)=D0_6; *[ram]:4 (p+20)=D1_6; *[ram]:4 (p+24)=D0_7; *[ram]:4 (p+28)=D1_7; *[ram]:4 (p+32)=D0_8; *[ram]:4 (p+36)=D1_8; Base=Base+40; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=2 & rmask=0x01 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar4; *[ram]:4 (p+4)=D1Ar3; *[ram]:4 (p+8)=D0Ar2; *[ram]:4 (p+12)=D1Ar1; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=2 & rmask=0x03 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar4; *[ram]:4 (p+4)=D1Ar3; *[ram]:4 (p+8)=D0Ar2; *[ram]:4 (p+12)=D1Ar1; *[ram]:4 (p+16)=D0FrT; *[ram]:4 (p+20)=D1RtP; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=2 & rmask=0x07 & Base { local p=Base; *[ram]:4 (p+0)=D0Ar4; *[ram]:4 (p+4)=D1Ar3; *[ram]:4 (p+8)=D0Ar2; *[ram]:4 (p+12)=D1Ar1; *[ram]:4 (p+16)=D0FrT; *[ram]:4 (p+20)=D1RtP; *[ram]:4 (p+24)=D0_5; *[ram]:4 (p+28)=D1_5; Base=Base+32; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x01 & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_5; *[ram]:4 (p+12)=D1_5; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x03 & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_5; *[ram]:4 (p+12)=D1_5; *[ram]:4 (p+16)=D0_6; *[ram]:4 (p+20)=D1_6; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x06 & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; *[ram]:4 (p+16)=D0_7; *[ram]:4 (p+20)=D1_7; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x07 & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_5; *[ram]:4 (p+12)=D1_5; *[ram]:4 (p+16)=D0_6; *[ram]:4 (p+20)=D1_6; *[ram]:4 (p+24)=D0_7; *[ram]:4 (p+28)=D1_7; Base=Base+32; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x08 & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_8; *[ram]:4 (p+12)=D1_8; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x09 & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_5; *[ram]:4 (p+12)=D1_5; *[ram]:4 (p+16)=D0_8; *[ram]:4 (p+20)=D1_8; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x0b & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_5; *[ram]:4 (p+12)=D1_5; *[ram]:4 (p+16)=D0_6; *[ram]:4 (p+20)=D1_6; *[ram]:4 (p+24)=D0_8; *[ram]:4 (p+28)=D1_8; Base=Base+32; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=4 & rmask=0x0f & Base { local p=Base; *[ram]:4 (p+0)=D0FrT; *[ram]:4 (p+4)=D1RtP; *[ram]:4 (p+8)=D0_5; *[ram]:4 (p+12)=D1_5; *[ram]:4 (p+16)=D0_6; *[ram]:4 (p+20)=D1_6; *[ram]:4 (p+24)=D0_7; *[ram]:4 (p+28)=D1_7; *[ram]:4 (p+32)=D0_8; *[ram]:4 (p+36)=D1_8; Base=Base+40; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x01 & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x03 & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; *[ram]:4 (p+16)=D0_7; *[ram]:4 (p+20)=D1_7; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x04 & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_8; *[ram]:4 (p+12)=D1_8; Base=Base+16; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x05 & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; *[ram]:4 (p+16)=D0_8; *[ram]:4 (p+20)=D1_8; Base=Base+24; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x6d & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; *[ram]:4 (p+16)=D0_8; *[ram]:4 (p+20)=D1_8; *[ram]:4 (p+24)=D0_9; *[ram]:4 (p+28)=D1_9; *[ram]:4 (p+32)=D0_11; *[ram]:4 (p+36)=D1_11; *[ram]:4 (p+40)=D0_12; *[ram]:4 (p+44)=D1_12; Base=Base+48; }
+:MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=14 & rmask=0x69 & Base { local p=Base; *[ram]:4 (p+0)=D0_14; *[ram]:4 (p+4)=D1_14; *[ram]:4 (p+8)=D0_15; *[ram]:4 (p+12)=D1_15; *[ram]:4 (p+16)=D0_18; *[ram]:4 (p+20)=D1_18; *[ram]:4 (p+24)=D0_20; *[ram]:4 (p+28)=D1_20; *[ram]:4 (p+32)=D0_21; *[ram]:4 (p+36)=D1_21; Base=Base+40; }

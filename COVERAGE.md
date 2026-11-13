@@ -16,3 +16,6 @@
 
 ABI (metag.cspec): args D1Ar1,D0Ar2,D1Ar3,D0Ar4,D1Ar5,D0Ar6 ; ret D0Re0 ;
 link D1RtP ; stack A0StP (grows up) ; globals A1GbP.
+
+## Update 2026-11-10
+- ALU imm8 (28484 words) + conditional RET (607) now have full semantics; imm16 src-reg fixed. Decompiler no longer breaks on inflate/common code.
