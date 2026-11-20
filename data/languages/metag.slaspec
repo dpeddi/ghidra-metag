@@ -31,6 +31,7 @@ define token instr(32)
   b9=(9,9) st=(6,7) umm16=(3,18) shamt5=(9,13)
   ccf=(1,4) jru=(0,1) joff=(3,18) op7sub=(2,8) b1=(1,1)
   jrno_d0=(19,23) jrno_d1=(19,23) jrno_a0=(19,23) jrno_a1=(19,23)
+  du2=(5,8) o2ru=(12,13) o2rr_d0=(9,11) o2rr_d1=(9,11) o2rr_a0=(9,11) o2rr_a1=(9,11)
 ;
 attach variables [ dno s1no s2no gdno mdn_d0 msn_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8 D0_9 D0_10 D0_11 D0_12 D0_13 D0_14 D0_15 D0_16 D0_17 D0_18 D0_19 D0_20 D0_21 D0_22 D0_23 D0_24 D0_25 D0_26 D0_27 D0_28 D0_29 D0_30 D0_31 ];
 attach variables [ dno_d1 s1no_d1 s2no_d1 gdno_d1 bno_d1 gor_d1 mdn_d1 msn_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
@@ -48,6 +49,10 @@ attach variables [ jrno_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8
 attach variables [ jrno_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
 attach variables [ jrno_a0 ] [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 A0_8 A0_9 A0_10 A0_11 A0_12 A0_13 A0_14 A0_15 A0_16 A0_17 A0_18 A0_19 A0_20 A0_21 A0_22 A0_23 A0_24 A0_25 A0_26 A0_27 A0_28 A0_29 A0_30 A0_31 ];
 attach variables [ jrno_a1 ] [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 A1_8 A1_9 A1_10 A1_11 A1_12 A1_13 A1_14 A1_15 A1_16 A1_17 A1_18 A1_19 A1_20 A1_21 A1_22 A1_23 A1_24 A1_25 A1_26 A1_27 A1_28 A1_29 A1_30 A1_31 ];
+attach variables [ o2rr_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 ];
+attach variables [ o2rr_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 ];
+attach variables [ o2rr_a0 ] [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 ];
+attach variables [ o2rr_a1 ] [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 ];
 Ddst: dno is u24=0 & dno { export dno; }
 Ddst: dno_d1 is u24=1 & dno_d1 { export dno_d1; }
 Ds1: s1no is u24=0 & s1no { export s1no; }
@@ -345,3 +350,25 @@ ALUcc: "le" is ccf=14 { local t = (ZF!=0)||(NF!=VF);  export t; }
 :MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x05 & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; *[ram]:4 (p+16)=D0_8; *[ram]:4 (p+20)=D1_8; Base=Base+24; }
 :MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=5 & rmask=0x6d & Base { local p=Base; *[ram]:4 (p+0)=D0_5; *[ram]:4 (p+4)=D1_5; *[ram]:4 (p+8)=D0_6; *[ram]:4 (p+12)=D1_6; *[ram]:4 (p+16)=D0_8; *[ram]:4 (p+20)=D1_8; *[ram]:4 (p+24)=D0_9; *[ram]:4 (p+28)=D1_9; *[ram]:4 (p+32)=D0_11; *[ram]:4 (p+36)=D1_11; *[ram]:4 (p+40)=D0_12; *[ram]:4 (p+44)=D1_12; Base=Base+48; }
 :MSETL [Base++] is op=0xb & minor=9 & eru=1 & msbn=14 & rmask=0x69 & Base { local p=Base; *[ram]:4 (p+0)=D0_14; *[ram]:4 (p+4)=D1_14; *[ram]:4 (p+8)=D0_15; *[ram]:4 (p+12)=D1_15; *[ram]:4 (p+16)=D0_18; *[ram]:4 (p+20)=D1_18; *[ram]:4 (p+24)=D0_20; *[ram]:4 (p+28)=D1_20; *[ram]:4 (p+32)=D0_21; *[ram]:4 (p+36)=D1_21; Base=Base+40; }
+
+
+# ===== data-unit ALU O2R reg form (op 0-4, i25=0, c26=1) - binutils-verified =====
+AS1: s1no    is u24=0 & s1no    { export s1no; }
+AS1: s1no_d1 is u24=1 & s1no_d1 { export s1no_d1; }
+AS2: s2no    is b0=0 & u24=0 & s2no    { export s2no; }
+AS2: s2no_d1 is b0=0 & u24=1 & s2no_d1 { export s2no_d1; }
+AS2: o2rr_a1 is b0=1 & u24=0 & o2ru=0 & o2rr_a1 { export o2rr_a1; }
+AS2: o2rr_d1 is b0=1 & u24=0 & o2ru=1 & o2rr_d1 { export o2rr_d1; }
+AS2: o2rr_a0 is b0=1 & u24=0 & o2ru=3 & o2rr_a0 { export o2rr_a0; }
+AS2: o2rr_a1 is b0=1 & u24=1 & o2ru=0 & o2rr_a1 { export o2rr_a1; }
+AS2: o2rr_d0 is b0=1 & u24=1 & o2ru=1 & o2rr_d0 { export o2rr_d0; }
+AS2: o2rr_a0 is b0=1 & u24=1 & o2ru=3 & o2rr_a0 { export o2rr_a0; }
+AD: dno    is du2=1 & dno    { export dno; }
+AD: dno_d1 is du2=2 & dno_d1 { export dno_d1; }
+AD: dno_a0 is du2=3 & dno_a0 { export dno_a0; }
+AD: dno_a1 is du2=4 & dno_a1 { export dno_a1; }
+:ADD AD,AS1,AS2 is op=0x0 & i25=0 & c26=1 & AD & AS1 & AS2 { AD = AS1 + AS2; }
+:SUB AD,AS1,AS2 is op=0x1 & i25=0 & c26=1 & AD & AS1 & AS2 { AD = AS1 - AS2; }
+:AND AD,AS1,AS2 is op=0x2 & i25=0 & c26=1 & AD & AS1 & AS2 { AD = AS1 & AS2; }
+:OR  AD,AS1,AS2 is op=0x3 & i25=0 & c26=1 & AD & AS1 & AS2 { AD = AS1 | AS2; }
+:XOR AD,AS1,AS2 is op=0x4 & i25=0 & c26=1 & AD & AS1 & AS2 { AD = AS1 ^ AS2; }
