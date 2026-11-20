@@ -8,6 +8,7 @@ define register offset=0x080 size=4 [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1
 define register offset=0x100 size=4 [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 A0_8 A0_9 A0_10 A0_11 A0_12 A0_13 A0_14 A0_15 A0_16 A0_17 A0_18 A0_19 A0_20 A0_21 A0_22 A0_23 A0_24 A0_25 A0_26 A0_27 A0_28 A0_29 A0_30 A0_31 ];
 define register offset=0x180 size=4 [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 A1_8 A1_9 A1_10 A1_11 A1_12 A1_13 A1_14 A1_15 A1_16 A1_17 A1_18 A1_19 A1_20 A1_21 A1_22 A1_23 A1_24 A1_25 A1_26 A1_27 A1_28 A1_29 A1_30 A1_31 ];
 define register offset=0x200 size=4 [ PC TXRPT ];
+define register offset=0x240 size=4 [ TXENABLE TXMODE TXSTATUS TXTIMER TXL1START TXL1END TXL1COUNT TXL2START TXL2END TXL2COUNT TXBPOBITS TXMRSIZE TXTIMERI TXDRCTRL TXDRSIZE TXCATCH0 TXCATCH1 TXCATCH2 TXCATCH3 TXDEFR TXCPRS TXCLKCTRL TXINTERN0 TXAMAREG0 TXAMAREG1 TXAMAREG2 TXAMAREG3 TXDIVTIME TXPRIVEXT TXTACTCYC TXIDLECYC ];
 define register offset=0x220 size=1 [ NF ZF CF VF ];
 define token instr(32)
   op=(28,31) minor=(24,27) i25=(25,25) c26=(26,26) u24=(24,24) o1zb=(2,2) se1=(1,1)
@@ -32,6 +33,7 @@ define token instr(32)
   ccf=(1,4) jru=(0,1) joff=(3,18) op7sub=(2,8) b1=(1,1)
   jrno_d0=(19,23) jrno_d1=(19,23) jrno_a0=(19,23) jrno_a1=(19,23)
   du2=(5,8) o2ru=(12,13) o2rr_d0=(9,11) o2rr_d1=(9,11) o2rr_a0=(9,11) o2rr_a1=(9,11)
+  ctn_d=(14,18) ctn_s=(19,23)
 ;
 attach variables [ dno s1no s2no gdno mdn_d0 msn_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 D0_8 D0_9 D0_10 D0_11 D0_12 D0_13 D0_14 D0_15 D0_16 D0_17 D0_18 D0_19 D0_20 D0_21 D0_22 D0_23 D0_24 D0_25 D0_26 D0_27 D0_28 D0_29 D0_30 D0_31 ];
 attach variables [ dno_d1 s1no_d1 s2no_d1 gdno_d1 bno_d1 gor_d1 mdn_d1 msn_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 D1_8 D1_9 D1_10 D1_11 D1_12 D1_13 D1_14 D1_15 D1_16 D1_17 D1_18 D1_19 D1_20 D1_21 D1_22 D1_23 D1_24 D1_25 D1_26 D1_27 D1_28 D1_29 D1_30 D1_31 ];
@@ -53,6 +55,8 @@ attach variables [ o2rr_d0 ] [ D0Re0 D0Ar6 D0Ar4 D0Ar2 D0FrT D0_5 D0_6 D0_7 ];
 attach variables [ o2rr_d1 ] [ D1Re0 D1Ar5 D1Ar3 D1Ar1 D1RtP D1_5 D1_6 D1_7 ];
 attach variables [ o2rr_a0 ] [ A0StP A0FrP A0_2 A0_3 A0_4 A0_5 A0_6 A0_7 ];
 attach variables [ o2rr_a1 ] [ A1GbP A1LbP A1_2 A1_3 A1_4 A1_5 A1_6 A1_7 ];
+attach variables [ ctn_d ] [ TXENABLE TXMODE TXSTATUS TXRPT TXTIMER TXL1START TXL1END TXL1COUNT TXL2START TXL2END TXL2COUNT TXBPOBITS TXMRSIZE TXTIMERI TXDRCTRL TXDRSIZE TXCATCH0 TXCATCH1 TXCATCH2 TXCATCH3 TXDEFR TXCPRS TXCLKCTRL TXINTERN0 TXAMAREG0 TXAMAREG1 TXAMAREG2 TXAMAREG3 TXDIVTIME TXPRIVEXT TXTACTCYC TXIDLECYC ];
+attach variables [ ctn_s ] [ TXENABLE TXMODE TXSTATUS TXRPT TXTIMER TXL1START TXL1END TXL1COUNT TXL2START TXL2END TXL2COUNT TXBPOBITS TXMRSIZE TXTIMERI TXDRCTRL TXDRSIZE TXCATCH0 TXCATCH1 TXCATCH2 TXCATCH3 TXDEFR TXCPRS TXCLKCTRL TXINTERN0 TXAMAREG0 TXAMAREG1 TXAMAREG2 TXAMAREG3 TXDIVTIME TXPRIVEXT TXTACTCYC TXIDLECYC ];
 Ddst: dno is u24=0 & dno { export dno; }
 Ddst: dno_d1 is u24=1 & dno_d1 { export dno_d1; }
 Ds1: s1no is u24=0 & s1no { export s1no; }
@@ -81,10 +85,12 @@ Udst: mdn_d0 is mdu=1 & mdn_d0 { export mdn_d0; }
 Udst: mdn_d1 is mdu=2 & mdn_d1 { export mdn_d1; }
 Udst: mdn_a0 is mdu=3 & mdn_a0 { export mdn_a0; }
 Udst: mdn_a1 is mdu=4 & mdn_a1 { export mdn_a1; }
+Udst: ctn_d is mdu=0 & ctn_d { export ctn_d; }
 Usrc: msn_d0 is msu=1 & msn_d0 { export msn_d0; }
 Usrc: msn_d1 is msu=2 & msn_d1 { export msn_d1; }
 Usrc: msn_a0 is msu=3 & msn_a0 { export msn_a0; }
 Usrc: msn_a1 is msu=4 & msn_a1 { export msn_a1; }
+Usrc: ctn_s is msu=0 & ctn_s { export ctn_s; }
 btarg: reloc is boff [ reloc = inst_start + (boff << 2); ] { export *:4 reloc; }
 # ---- control flow ----
 :B btarg is op=0xa & minor=0 & bcc=0 & b0=0 & btarg { goto btarg; }
@@ -107,7 +113,6 @@ btarg: reloc is boff [ reloc = inst_start + (boff << 2); ] { export *:4 reloc; }
 :RET is op=0xa & minor=3 & misc24=0x2008a0 { return [D1RtP]; }
 :CALLRtp is op=0xa & minor=3 & misc24=0x200aa0 { local t=D1RtP; D1RtP=inst_next; call [t]; }
 # ---- MOV cross-unit (op=0xa minor=3) ----
-:MOV Usrc is op=0xa & minor=3 & b9=0 & mdu=0 & mdn=3 & Usrc { TXRPT = Usrc; }
 :MOV Udst,Usrc is op=0xa & minor=3 & b9=0 & Udst & Usrc { Udst = Usrc; }
 # ---- GP ALU reg-reg ----
 :ADD Ddst,Ds1,Ds2 is op=0x0 & i25=0 & c26=0 & m27=0 & Ddst & Ds1 & Ds2 { Ddst = Ds1 + Ds2; }
